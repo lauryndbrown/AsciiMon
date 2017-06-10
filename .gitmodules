@@ -1,0 +1,3 @@
+[submodule "AsciiGame"]
+	path = AsciiGame
+	url = git@github.com:lauryndbrown/AsciiGame.git
