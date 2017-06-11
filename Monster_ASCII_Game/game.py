@@ -40,6 +40,11 @@ class MonsterGame(Game):
         self.display.start_menu(self)
     def create_new_game(self):
         pass
+    def get_battle_command(self, trainer):
+       return self.display.battle_commands(self, trainer)
+    def get_switch_monster(self, trainer):
+       return self.display.switch_monster(self, trainer)
+
 if __name__=="__main__":
     display = MonsterGameDisplay()
     player = MonsterGamePlayer("Ash")
