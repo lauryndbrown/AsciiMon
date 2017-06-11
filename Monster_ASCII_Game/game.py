@@ -1,6 +1,7 @@
 from ascii_game.game import Game, Choice
 from Monster_ASCII_Game.display import MonsterGameDisplay
 from Monster_ASCII_Game.player import MonsterGamePlayer
+from Monster_ASCII_Game.battle import Battle
 
 
 class MonsterGame(Game):
@@ -40,6 +41,11 @@ class MonsterGame(Game):
         self.display.start_menu(self)
     def create_new_game(self):
         pass
+    def new_battle(self, trainer1, trainer2):
+        print("new battle")
+        self.battle = Battle([trainer1, trainer2])
+        self.display.battle_screen(self, MonsterGameDisplay.BATTLE_START)
+        self.battle.start()
     def get_battle_command(self, trainer):
        return self.display.battle_commands(self, trainer)
     def get_switch_monster(self, trainer):

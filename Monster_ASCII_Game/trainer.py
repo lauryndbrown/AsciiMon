@@ -1,5 +1,4 @@
 from abc import ABC, abstractmethod
-from Monster_ASCII_Game.game import MonsterGame
 import random
 class Trainer:
     FAINTED = "Fainted"
@@ -21,7 +20,7 @@ class Trainer:
     def attack(self, active_monsters):
         target = self.pick_target(active_monsters)
         move = self.pick_move()
-        self.active_monster.attack(target, move)
+        self.active_monster.attack_monster(target, move)
         if(target.health<=0):
             return self.FAINTED
     def has_healthy_monsters(self):
@@ -37,25 +36,31 @@ class Player_Trainer(Trainer):
     ATTACK = "Attack"
     SWITCH = "Swtich"
     ITEM = "Item"
-    def __init__(self, name, game, monsters, prize_money):
+    def __init__(self, name, game, monsters, prize_money=None):
         super().__init__(monsters, prize_money)
         self.name = name
         self.game = game
     def switch_monster(self, monster):
         self.active_monster = monster
     def decide(self, active_monsters):
-        choice = self.ask_for_choice()
+        choice = self.get_battle_command()
         if(choice==self.ATTACK):
             self.attack(active_monsters)
-        else if(choice==self.SWITCH):
+        elif(choice==self.SWITCH):
             self.switch(self.ask_for_switch())
         return choice
+    def reset_active_monster(self):
+        self.active_monster = None
+        for monster in self.monsters:
+            if monster.health>0:
+                self.active_monster = monster
+                break
     def get_battle_command(self):
         return self.game.get_battle_command(self)
     def get_switch_monster(self):
         return self.game.get_switch_monster(self)
 class AI_Trainer(Player_Trainer):
-    def __init__(self, name, game, monsters):
+    def __init__(self, name, game, monsters, prize_money=None):
         super().__init__(name, game, monsters, prize_money)
     def get_battle_command(self):
         return self.ATTACK
