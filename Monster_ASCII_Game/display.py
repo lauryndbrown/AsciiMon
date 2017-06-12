@@ -13,7 +13,7 @@ class MonsterBattleDisplay:
     def __init__(self):
         self.image_converter = ASCII_Art(list('#@%S?+:*,. '))
     def monster_info(self, monster):
-            return "{:>22} \nHP:{:<14}]{:>3}% \n:L{} {:>18} ".format(monster.name,"="*(int(monster.health/monster.max_health*14)),int(monster.health/monster.max_health*100), monster.level, self.GENDER_CONVERSIONS[monster.gender])
+            return "{:>23} \n HP:{:<14}]{:>3}% \n :L{} {:>18} ".format(monster.name,"="*(int(monster.health/monster.max_health*14)),int(monster.health/monster.max_health*100), monster.level, self.GENDER_CONVERSIONS[monster.gender])
     def monster_pic(self, monster, mon_info):
         self.image_converter.chars = list(u'\u2593\u2592\u2591#@%SZ+:,. ')#-- very good!
         #self.image_converter.chars = list(u'\u2593\u2592\u2591:. ') #---AMAZING!
@@ -81,12 +81,12 @@ class MonsterBattleDisplay:
                 str_left[index] = str_left[index]+str_right[index]+"\n"
         return "".join(str_left)
     def generate_mon_info(self, monster1, monster2):
-        horizontal_border = " "*23
+        horizontal_border = " "*24
         mon_str1 = horizontal_border+"\n"+self.monster_info(monster1)+"\n"+horizontal_border
         mon_str2 = horizontal_border+"\n"+self.monster_info(monster2)+"\n"+horizontal_border
 
         tab = "\n".join(self.generate_divider("#", 25, 5))
-        half_tab = "\n".join(self.generate_divider("#", 2, 5))
+        half_tab = "\n".join(self.generate_divider("#", 3, 5))
 
         mon_str1 = self.combine_str(mon_str1, tab)
         mon_str1 = self.combine_str(half_tab, mon_str1)
@@ -94,9 +94,9 @@ class MonsterBattleDisplay:
         mon_str2 = self.combine_str(mon_str2, half_tab)
 
 
-        top_divider = "\n".join(self.generate_divider("#", 50, 5))
-        mid_divider = "\n".join(self.generate_divider("#", 50, 5))
-        bottom_divider = "\n".join(self.generate_divider("#", 50, 5))
+        top_divider = "\n".join(self.generate_divider("#", 52, 5))
+        mid_divider = "\n".join(self.generate_divider("#", 52, 5))
+        bottom_divider = "\n".join(self.generate_divider("#", 52, 5))
         return top_divider+"\n"+mon_str2+mid_divider+"\n"+mon_str1+bottom_divider+"\n"
         
     def generate_divider(self, char, col, lines):
