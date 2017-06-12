@@ -12,7 +12,7 @@ class Battle:
             raise ValueError("Battle requires at least 2 trainers")
         self.winner = self.NO_WINNER_YET
         self.reset_active_monsters()
-        self.active_trainer = None
+        self.active_trainer = trainers[0]
     def start(self):
         while(self.winner==self.NO_WINNER_YET):
             self.trainer_turns()
@@ -98,7 +98,18 @@ def create_monster_species():
 
     return grass_mon_species, fire_mon_species, water_mon_species
 
+def create_trainers(game):
+    grass_mon_species, fire_mon_species, water_mon_species = create_monster_species() 
+    grass_mon = Monster(grass_mon_species, Monster.FEMALE)
+    grass_mon_2 = Monster(grass_mon_species, Monster.MALE)
+    fire_mon = Monster(fire_mon_species, Monster.MALE)
+    water_mon = Monster(water_mon_species, Monster.FEMALE)
+    player_trainer = Player_Trainer("Lauryn", game, [fire_mon, grass_mon_2])
+    ai_trainer = AI_Trainer("Computy", game, [water_mon]) 
+    wild_trainer = Wild_Trainer([grass_mon])
 
+    return player_trainer, ai_trainer, wild_trainer
+    
     
 if __name__=="__main__":
     import sys
