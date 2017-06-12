@@ -43,7 +43,7 @@ class MonsterGameDisplay(Display):
         self.fill_screen(self.GAME_SCREEN_OFFSET)
         self._in_game_menu(game.menu)
         self.last_menu = (self.game_screen, (game))
-    def battle_screen(self, game, mode):
+    def battle_screen(self, game, mode, choice=None):
         self.clear_screen()
         print(self.center("Battle Screen"," "))
         self.fill_screen(self.BATTLE_SCREEN_OFFSET)
@@ -53,25 +53,47 @@ class MonsterGameDisplay(Display):
         print(monster2_info)
         print(monster1_info)
         if not mode or mode==self.BATTLE_START:
+            print("MODE:", mode)
             self._in_game_menu(game.menu)
-            self.last_menu = (self.battle_screen, (game, mode))
         elif(mode==self.BATTLE_COMMANDS):
-            attack_menu = self.label_attacks(game, game.battle.active_trainer)
-            self._in_game_menu(attack_menu)
-            self.last_menu = (self.battle_screen, (game, mode))
+            self.battle_commands(game, choice)
         elif(mode==self.BATTLE_SWITCH):
-            self.battle_switch(game, game.battle.active_trainer)
+            switch_menu = self.label_switch_monsters(game, game.battle.active_trainer)
+            self._in_game_menu(switch_menu)
         elif(mode==self.BATTLE_RUN):
             self.battle_run(game, game.battle.active_trainer)
+        self.last_menu = (self.battle_screen, (game, mode, choice))
 
     def end_screen(self):
         print(self.center("Thanks for Playing!"," "))
+    def battle_commands(self, game, move):
+        if move:
+            trainers = game.battle.trainers
+            trainer1, trainer2 = trainers[0], trainers[1]
+           
+            monster1 = trainer1.active_monster
+            monster2 = trainer2.active_monster
+            print("Choice:{} Moves:{}".format(move, monster1.moves))
+            monster1.attack_monster(monster2, move)
+        game.menu = self.label_attacks(game, game.battle.active_trainer)
+        self._in_game_menu(game.menu)
     def label_attacks(self, game, trainer):
-        new_menu = list(game.menu)
-        moves = trainer.active_monster.moves
-        for index in range(len(moves)):
-            new_menu[index] = moves[index]
+        new_menu = []
+        #append the "Back" menu option
+        new_menu.append(game.menu[0])
+        for move in trainer.active_monster.moves:
+            new_menu.append(game.create_attack_menu_choice(move))
+        print("NEW MENU:", new_menu)
         return new_menu
+    def label_switch_monsters(self, game, trainer):
+        new_menu = []
+        #append the "Back" menu option
+        new_menu.append(game.menu[0])
+        for monster in trainer.monsters:
+            new_menu.append(game.create_switch_menu_choice(monster))
+        print("NEW MENU:", new_menu)
+        return new_menu
+
 
 if __name__=="__main__":
     battle = MonsterBattleDisplay()
