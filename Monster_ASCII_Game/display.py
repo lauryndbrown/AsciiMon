@@ -13,7 +13,7 @@ class MonsterBattleDisplay:
     def __init__(self):
         self.image_converter = ASCII_Art(list('#@%S?+:*,. '))
     def monster_info(self, monster):
-            return "{:>22} \nHP:{:>17}] \n:L{} {:>18} ".format(monster.name,"="*(monster.health//monster.max_health*18), monster.level, self.GENDER_CONVERSIONS[monster.gender])
+            return "{:>22} \nHP:{:<14}]{:>3}% \n:L{} {:>18} ".format(monster.name,"="*(int(monster.health/monster.max_health*14)),int(monster.health/monster.max_health*100), monster.level, self.GENDER_CONVERSIONS[monster.gender])
     def monster_pic(self, monster, mon_info):
         self.image_converter.chars = list(u'\u2593\u2592\u2591#@%SZ+:,. ')#-- very good!
         #self.image_converter.chars = list(u'\u2593\u2592\u2591:. ') #---AMAZING!

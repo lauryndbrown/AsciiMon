@@ -77,21 +77,21 @@ def create_monster_species():
 
     experience_mult = 3.5
     fire_mon_moves = {1:scratch,2:tail_whip,7:ember}
-    fire_mon_health = {5:50, 6:60, 7:65}
+    fire_mon_health = {5:100, 6:110, 7:125}
     fire_mon_speed = {5:5, 6:6, 7:7}
     fire_mon_attack = {5:6, 6:7, 7:9}
     fire_mon_defense = {5:5, 6:6, 7:7}
     fire_mon_species = Species("Fire Mon", fire_type, fire_mon_moves,fire_mon_health, fire_mon_speed, fire_mon_attack, fire_mon_defense, experience_mult)
 
     water_mon_moves = {1:tackle,2:growl,7:bubble}
-    water_mon_health = {5:50, 6:60, 7:65}
+    water_mon_health = {5:100, 6:110, 7:125}
     water_mon_speed = {5:6, 6:7, 7:9}
     water_mon_attack = {5:5, 6:6, 7:7}
     water_mon_defense = {5:5, 6:6, 7:7}
     water_mon_species = Species("Water Mon", water_type, water_mon_moves, water_mon_health,water_mon_speed, water_mon_attack, water_mon_defense, experience_mult)
 
     grass_mon_moves = {1:tackle,2:tail_whip,7:vine_whip}
-    grass_mon_health = {5:60, 6:70, 7:80}
+    grass_mon_health = {5:100, 6:125, 7:150}
     grass_mon_speed = {5:5, 6:5, 7:6}
     grass_mon_attack = {5:5, 6:6, 7:7}
     grass_mon_defense = {5:6, 6:7, 7:9}
