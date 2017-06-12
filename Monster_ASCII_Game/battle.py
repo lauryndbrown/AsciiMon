@@ -5,7 +5,7 @@ from Monster_ASCII_Game.monster import *
 class Battle:
     DRAW = "Draw"
     NO_WINNER_YET = "No Winner Yet"
-    def __init__(self, trainers):
+    def __init__(self, trainers, can_run=False):
         if(len(trainers)>=2):
             self.trainers = trainers
         else:
@@ -13,6 +13,7 @@ class Battle:
         self.winner = self.NO_WINNER_YET
         self.reset_active_monsters()
         self.active_trainer = trainers[0]
+        self.can_run = can_run
     def start(self):
         while(self.winner==self.NO_WINNER_YET):
             self.trainer_turns()
@@ -64,13 +65,13 @@ def create_monster_species():
     fire_type.resistences =  [Type_Difference(grass_type, resistence_mult)]
     grass_type.resistences =  [Type_Difference(water_type, resistence_mult)]
 
-    scratch = Move("Scratch", Move.ATTACK, normal_type, -30)
-    tackle = Move("Tackle", Move.ATTACK, normal_type, -20)
+    scratch = Move("Scratch", Move.HEALTH, normal_type, -30)
+    tackle = Move("Tackle", Move.HEALTH, normal_type, -20)
     tail_whip = Move("Tail Whip", Move.DEFENSE, normal_type, -20)
     growl = Move("Growl", Move.ATTACK, normal_type, -20)
-    ember = Move("Ember", Move.ATTACK, fire_type, -30)
-    bubble = Move("Bubble", Move.ATTACK, water_type, -20)
-    vine_whip = Move("Vine Whip", Move.ATTACK, grass_type, -20)
+    ember = Move("Ember", Move.HEALTH, fire_type, -30)
+    bubble = Move("Bubble", Move.HEALTH, water_type, -20)
+    vine_whip = Move("Vine Whip", Move.HEALTH, grass_type, -20)
     attacks = [scratch, tackle, tail_whip, growl, ember, bubble, vine_whip]
 
 

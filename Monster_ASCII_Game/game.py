@@ -40,7 +40,7 @@ class MonsterGame(Game):
         #Battle Menu Choices
         battle_menu.append(Choice("Attack", self.battle_screen, (self.BATTLE_ATTACK, ), self.BATTLE_ATTACK_MENU_NAME))
         battle_menu.append(Choice("Switch", self.battle_screen, (self.BATTLE_SWITCH, ), self.BATTLE_SWITCH_MENU_NAME))
-        battle_menu.append(Choice("Run", self.battle_screen, (self.BATTLE_RUN, ), None))
+#        battle_menu.append(Choice("Run", self.battle_screen, (self.BATTLE_RUN, ), None))
         #Battle Menu Choices
         battle_attack_menu.append(Choice(self.BACK_OPTION, self.battle_screen, None, self.BATTLE_MENU_NAME))
         #Battle Switch Choices

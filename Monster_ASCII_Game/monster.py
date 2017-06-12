@@ -107,6 +107,7 @@ class Monster:
                 target.defense += move.max_value
             else:
                 raise ValueError("attack move type not recognized")
+            return move.max_value
 
         def heal(self):
             self.health = self.max_health 
