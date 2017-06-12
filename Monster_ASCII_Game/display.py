@@ -15,40 +15,13 @@ class MonsterBattleDisplay:
     def monster_info(self, monster):
             return "{:>23} \n HP:{:<14}]{:>3}% \n :L{} {:>18} ".format(monster.name,"="*(int(monster.health/monster.max_health*14)),int(monster.health/monster.max_health*100), monster.level, self.GENDER_CONVERSIONS[monster.gender])
     def monster_pic(self, monster, mon_info):
-        self.image_converter.chars = list(u'\u2593\u2592\u2591#@%SZ+:,. ')#-- very good!
-        #self.image_converter.chars = list(u'\u2593\u2592\u2591:. ') #---AMAZING!
-        self.image_converter.chars = list(u'#\u2593\u2592\u2591:. ') #---AMAZING!
-        self.image_converter.chars = list(u'#\u2590\u2593\u2592\u2591/ ') #---AMAZING!
-        self.image_converter.chars = list(u'#\u2590\u2593\u2592\u2591|* ') #---AMAZING!
-        self.image_converter.chars = list(u'#\u2590\u2593\u2592\u2591\u2580| ') #---AMAZING!
-        self.image_converter.chars = list(u'#\u2590\u2593\u2592\u2591| ') #---AMAZING!
-        self.image_converter.chars = list(u'\u2580\u2590\u2593\u2592\u2591 ') #---AMAZING!
-        self.image_converter.chars = list(u'#\u2593\u2592\u2591 ') #---AMAZING!
-        #self.image_converter.invert_chars()
-        #image = Image.open(os.path.join(self.IMAGES,"verticle_line.png"))
-        #title_image = self.image_converter.scale_image(title_image, 400)
-       # o_image = o_image.resize((50,25))
-        #self.ascii_x = self.image_converter.image_to_ascii(x_image)
-        #fire_mon =  Image.open(os.path.join(IMAGES_DIR,"charmander1.jpg"))
-        fire_mon =  Image.open(os.path.join(IMAGES_DIR,"charmander2.png"))
-        fire_mon =  Image.open(os.path.join(IMAGES_DIR,"f1.png"))
-        fire_mon =  Image.open(os.path.join(IMAGES_DIR,"f5.png"))
-        fire_mon =  Image.open(os.path.join(IMAGES_DIR,"f6.png"))
-        fire_mon =  Image.open(os.path.join(IMAGES_DIR,"f7.png"))
+        self.image_converter.chars = list(u'#\u2593\u2592\u2591 ') 
         fire_mon =  Image.open(os.path.join(IMAGES_DIR,"f8.png"))
-        #fire_mon =  Image.open(os.path.join(IMAGES_DIR,"f3.png"))
-        #fire_mon =  Image.open(os.path.join(IMAGES_DIR,"charmander3.png"))
-        #fire_mon =  Image.open(os.path.join(IMAGES_DIR,"250px-004Charmander.png"))
         grass_mon =  Image.open(os.path.join(IMAGES_DIR,"b1.png"))
-        water_mon =  Image.open(os.path.join(IMAGES_DIR,"s1.gif"))
-        water_mon =  Image.open(os.path.join(IMAGES_DIR,"s2.png"))
-        water_mon =  Image.open(os.path.join(IMAGES_DIR,"s3.png"))
-        water_mon =  Image.open(os.path.join(IMAGES_DIR,"s4.png"))
         water_mon =  Image.open(os.path.join(IMAGES_DIR,"s5.png"))
         #fire_mon = fire_mon.resize((250,250))
         #water_mon = water_mon.resize((250,250))
         #grass_mon = grass_mon.resize((250,250))
-       # fire_mon.show()
         self.image_converter.row_incr = 3
         self.image_converter.col_incr = 3
         self.image_converter.invert_chars()
@@ -59,11 +32,6 @@ class MonsterBattleDisplay:
         self.image_converter.row_incr = 3
         self.image_converter.col_incr = 3
         water_mon_ascii = self.image_converter.image_to_ascii(water_mon)
-        print(fire_mon_ascii)
-        print(grass_mon_ascii)
-        print(water_mon_ascii)
-     #   combine_img = self.image_converter.combine(fire_mon_ascii, water_mon_ascii)
-    #    combine_img = self.image_converter.combine(fire_mon_ascii, divider)
         combine = self.combine_str(fire_mon_ascii, mon_info)
         combine = self.combine_str(combine,water_mon_ascii)
         print(combine)
@@ -75,7 +43,6 @@ class MonsterBattleDisplay:
     def combine_str(self, str_left, str_right):
         str_left = str_left.split("\n")
         str_right = str_right.split("\n")
-        print("Right: ",len(str_right),"Left: ",len(str_left))
         for index in range(len(str_left)):
             if str_left[index]:
                 str_left[index] = str_left[index]+str_right[index]+"\n"
@@ -106,7 +73,7 @@ class MonsterGameDisplay(Display):
     IN_GAME_MENU_OFFSET = 6
     START_SCREEN_OFFSET = 1 + IN_GAME_MENU_OFFSET 
     GAME_SCREEN_OFFSET = 1 + IN_GAME_MENU_OFFSET 
-    BATTLE_SCREEN_OFFSET = 7 + IN_GAME_MENU_OFFSET 
+    BATTLE_SCREEN_OFFSET = 30 + IN_GAME_MENU_OFFSET 
     OPTION_SCREEN_OFFSET = 1 + IN_GAME_MENU_OFFSET 
     #Battle Constants
     BATTLE_START = "Battle Start"
@@ -146,6 +113,8 @@ class MonsterGameDisplay(Display):
             self.display_battle_images(game)
             if message:
                 print(self.center(message," "))
+            else:
+                print()
             self._in_game_menu(game.menu)
         elif(mode==self.BATTLE_SWITCH):
             self.display_battle_images(game)
