@@ -4,6 +4,12 @@ from Monster_ASCII_Game.player import MonsterGamePlayer
 from Monster_ASCII_Game.battle import Battle, create_trainers
 
 
+#Move Constants
+MOVE_LEFT = "Left"
+MOVE_RIGHT = "Right"
+MOVE_UP = "Up"
+MOVE_DOWN = "Down"
+
 class MonsterGame(Game):
     #Menu Names
     START_MENU_NAME = "Start"
@@ -20,10 +26,13 @@ class MonsterGame(Game):
     BATTLE_SWITCH = "Battle Switch"
     BATTLE_RUN = "Battle Run"
     BATTLE_NEW = "Battle New"
+    DIRECTIONS = {MOVE_LEFT:-1, MOVE_RIGHT:1, MOVE_UP:-1, MOVE_DOWN:1}
 
     def __init__(self, display, player1):
         super().__init__(display, player1, None)
         self._set_up_menus()
+        self.pos_x = 0
+        self.pos_y = 0
     def _set_up_menus(self):
         start_menu = []
         game_menu = []
@@ -37,6 +46,10 @@ class MonsterGame(Game):
         #Game Menu Choices
         game_menu.append(Choice("Battle", self.battle_screen, (self.BATTLE_NEW, ), self.BATTLE_MENU_NAME))
         game_menu.append(Choice("Options Menu", self.options_screen, (), self.OPTIONS_MENU_NAME))
+        game_menu.append(Choice("Move Left", self.move, (MOVE_LEFT, ), None))
+        game_menu.append(Choice("Move Right", self.move, (MOVE_RIGHT, ), None))
+        game_menu.append(Choice("Move Up", self.move, (MOVE_UP, ), None))
+        game_menu.append(Choice("Move Down", self.move, (MOVE_DOWN, ), None))
         #Battle Menu Choices
         battle_menu.append(Choice("Attack", self.battle_screen, (self.BATTLE_ATTACK, ), self.BATTLE_ATTACK_MENU_NAME))
         battle_menu.append(Choice("Switch", self.battle_screen, (self.BATTLE_SWITCH, ), self.BATTLE_SWITCH_MENU_NAME))
@@ -64,6 +77,29 @@ class MonsterGame(Game):
         self.display.start_menu(self)
     def create_new_game(self):
         pass
+    def move(self, direction):
+        direction_value = self.DIRECTIONS[direction]
+        old_x = game.pos_x
+        old_y = game.pos_y
+        if direction==MOVE_LEFT and game.pos_x+direction_value>=0:
+            game.pos_x += direction_value
+            print("Left")
+        elif direction==MOVE_RIGHT and game.pos_x+direction_value<game.display.MAP_WIDTH:
+            game.pos_x += direction_value
+            print("Right")
+        elif direction==MOVE_DOWN and game.pos_y+direction_value<game.display.MAP_HEIGHT:
+            game.pos_y += direction_value
+            print("Down")
+        elif direction==MOVE_UP and game.pos_y+direction_value>=0:
+            game.pos_y += direction_value
+            print("Up")
+        else:
+            print("invalid move")
+        print("({},{})".format(game.pos_x, game.pos_y))
+        has_moved = self.display.game_screen(self)
+        if not has_moved:
+            game.pos_x = old_x
+            game.pos_y = old_y
     def battle_screen(self, flag=None, choice=None):
         if not flag:
             self.display.battle_screen(self, None)
