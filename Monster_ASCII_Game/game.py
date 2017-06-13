@@ -81,17 +81,17 @@ class MonsterGame(Game):
         direction_value = self.DIRECTIONS[direction]
         old_x = game.pos_x
         old_y = game.pos_y
-        if direction==MOVE_LEFT and game.pos_x+direction_value>=0:
-            game.pos_x += direction_value
+        if direction==MOVE_LEFT and game.pos_y+direction_value>=0:
+            game.pos_y += direction_value
             print("Left")
-        elif direction==MOVE_RIGHT and game.pos_x+direction_value<game.display.MAP_WIDTH:
-            game.pos_x += direction_value
+        elif direction==MOVE_RIGHT and game.pos_y+direction_value<game.display.MAP_WIDTH:
+            game.pos_y += direction_value
             print("Right")
-        elif direction==MOVE_DOWN and game.pos_y+direction_value<game.display.MAP_HEIGHT:
-            game.pos_y += direction_value
+        elif direction==MOVE_DOWN and game.pos_x+direction_value<game.display.MAP_HEIGHT:
+            game.pos_x += direction_value
             print("Down")
-        elif direction==MOVE_UP and game.pos_y+direction_value>=0:
-            game.pos_y += direction_value
+        elif direction==MOVE_UP and game.pos_x+direction_value>=0:
+            game.pos_x += direction_value
             print("Up")
         else:
             print("invalid move")

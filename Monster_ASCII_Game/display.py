@@ -68,13 +68,18 @@ class MonsterBattleDisplay:
         
     def generate_divider(self, char, col, lines):
         return [char*col for _ in range(lines)]
+class GameMapImage:
+    def __init__(self, ascii_image):
+        self.ascii_image = ascii_image
+        self.height = len(ascii_image)
+        self.width = len(ascii_image[0])
 class GameMapObject:
-    def __init__(self, image, pos_x=0, pos_y=0, width=1, height=1):
+    def __init__(self, image, pos_x=0, pos_y=0):
         self.pos_x = pos_x
         self.pos_y = pos_y
         self.image = image
-        self.width = width
-        self.height = height
+        self.width = image.width
+        self.height = image.height
 class GameMap:
     EMPTY_SYMBOL = "#"
     def __init__(self, width, height):
@@ -97,18 +102,18 @@ class GameMap:
         self.insert_image(game_object)
         self.objects.append(game_object)
     def insert_image(self, game_object):
-        for img_y in range(len(game_object.image)):
-            for img_x in range(len(game_object.image[img_y])):
+        for img_x in range(game_object.image.height):
+            for img_y in range(game_object.image.width):
                 pos_y = game_object.pos_y+img_y
                 pos_x = game_object.pos_x+img_x
-                self.game_map[pos_y][pos_x] = game_object.image[img_x][img_y]
+                self.game_map[pos_x][pos_y] = game_object.image.ascii_image[img_x][img_y]
                 self.add_invalid_loc(pos_x, pos_y)
     def remove_image(self, game_object):
-        for img_y in range(len(game_object.image)):
-            for img_x in range(len(game_object.image[img_y])):
+        for img_x in range(game_object.image.height):
+            for img_y in range(game_object.image.width):
                 pos_y = game_object.pos_y+img_y
                 pos_x = game_object.pos_x+img_x
-                self.game_map[pos_y][pos_x] = self.EMPTY_SYMBOL
+                self.game_map[pos_x][pos_y] = self.EMPTY_SYMBOL
                 self.remove_invalid_loc(pos_x, pos_y)
 
     def remove_object(self, game_object):
@@ -146,8 +151,10 @@ class MonsterGameDisplay(Display):
         super().__init__(50)
         self.battle_display = MonsterBattleDisplay()
         self.game_map = GameMap(self.MAP_WIDTH, self.MAP_HEIGHT)
-        self.game_map.add_object(GameMapObject("?"), True)
-        self.game_map.add_object(GameMapObject("x", 1, 0))
+        player_img = GameMapImage([["?"]])
+        block_img = GameMapImage(["xxxx", "yyyy"])
+        self.game_map.add_object(GameMapObject(player_img), True)
+        self.game_map.add_object(GameMapObject(block_img, 1, 0))
     def start_menu(self, game):
         self.clear_screen()
         print(self.center("Start Screen"," "))
@@ -161,14 +168,14 @@ class MonsterGameDisplay(Display):
         has_moved = self.game_map.move_object(self.game_map.player_object, game.pos_x, game.pos_y)
         self.game_map.render_map(game)
         self._in_game_menu(game.menu)
-        self.last_menu = (self.game_screen, (game))
+        self.last_menu = (self.game_screen, (game, ))
         return has_moved
     def options_screen(self, game):
         self.clear_screen()
         print(self.center("Options Screen"," "))
         self.fill_screen(self.GAME_SCREEN_OFFSET)
         self._in_game_menu(game.menu)
-        self.last_menu = (self.game_screen, (game))
+        self.last_menu = (self.game_screen, (game, ))
     def battle_screen(self, game, mode, choice=None):
         self.clear_screen()
         print(self.center("Battle Screen"," "))
