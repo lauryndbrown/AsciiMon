@@ -8,6 +8,11 @@ import os
 import time
 IMAGES_DIR = os.path.join("Monster_ASCII_Game", "Images")
 
+#Player Constants
+FRONT = "Front"
+LEFT = "Left"
+RIGHT = "Right"
+
 class MonsterBattleDisplay:
     GENDER_CONVERSIONS = {Monster.FEMALE:"F", Monster.MALE:"M", Monster.GENDER_NONE:" "}
     def __init__(self):
@@ -80,6 +85,11 @@ class GameMapObject:
         self.image = image
         self.width = image.width
         self.height = image.height
+class MovingMapObject(GameMapObject):
+    def __init__(self, images, start_image, pos_x=0, pos_y=0):
+        super().__init__(start_image, pos_x, pos_y)
+        self.images = images
+
 class GameMap:
     EMPTY_SYMBOL = "#"
     def __init__(self, width, height):
@@ -131,6 +141,12 @@ class GameMap:
         self.invalid_locs.append((pos_x, pos_y))
     def remove_invalid_loc(self, pos_x, pos_y):
         self.invalid_locs.remove((pos_x, pos_y))
+    def left_player_image(self):
+        self.player_object.image = self.player_object.images[LEFT]
+    def right_player_image(self):
+        self.player_object.image = self.player_object.images[RIGHT]
+    def front_player_image(self):
+        self.player_object.image = self.player_object.images[FRONT]
 class MonsterGameDisplay(Display):
     #White Space Offsets
     IN_GAME_MENU_OFFSET = 6
@@ -144,17 +160,27 @@ class MonsterGameDisplay(Display):
     BATTLE_SWITCH = "Battle Switch"
     BATTLE_RUN = "Battle Run"
     #Map Constants
-    MAP_WIDTH = 10#100
-    MAP_HEIGHT = 5#30
-    
+    MAP_WIDTH = 100
+    MAP_HEIGHT = 30
     def __init__(self):
         super().__init__(50)
         self.battle_display = MonsterBattleDisplay()
         self.game_map = GameMap(self.MAP_WIDTH, self.MAP_HEIGHT)
-        player_img = GameMapImage([["?"]])
+        player_images = self.create_player_images()
         block_img = GameMapImage(["xxxx", "yyyy"])
-        self.game_map.add_object(GameMapObject(player_img), True)
-        self.game_map.add_object(GameMapObject(block_img, 1, 0))
+        self.game_map.add_object(MovingMapObject(player_images, player_images[FRONT]), True)
+        #self.game_map.add_object(GameMapObject(block_img, 1, 0))
+    def create_player_images(self):
+        player_ascii_right = [u"##\u2593\u2593\u2593\u2593##",
+                        "#\u2590\u2593\u2593\u2591\u2591\u2593\u2593#",
+                        "#\u2593\u2592##\u2592\u2593#"]
+        player_ascii_left = [u"##\u2593\u2593\u2593\u2593##",
+                        "#\u2593\u2591\u2591\u2593\u2593\u2593\u2593#",
+                        "#\u2593\u2592##\u2592\u2593#"]
+        player_ascii_front = [u"##\u2593\u2593\u2593\u2593##",
+                        "\u2593\u2593\u2593\u2591\u2591\u2593\u2593\u2593#",
+                        "#\u2593\u2592##\u2592\u2593#"]
+        return {FRONT:GameMapImage(player_ascii_front),RIGHT:GameMapImage(player_ascii_right), LEFT:GameMapImage(player_ascii_left)}
     def start_menu(self, game):
         self.clear_screen()
         print(self.center("Start Screen"," "))

@@ -26,7 +26,7 @@ class MonsterGame(Game):
     BATTLE_SWITCH = "Battle Switch"
     BATTLE_RUN = "Battle Run"
     BATTLE_NEW = "Battle New"
-    DIRECTIONS = {MOVE_LEFT:-1, MOVE_RIGHT:1, MOVE_UP:-1, MOVE_DOWN:1}
+    DIRECTIONS = {MOVE_LEFT:-10, MOVE_RIGHT:10, MOVE_UP:-3, MOVE_DOWN:3}
 
     def __init__(self, display, player1):
         super().__init__(display, player1, None)
@@ -83,15 +83,19 @@ class MonsterGame(Game):
         old_y = game.pos_y
         if direction==MOVE_LEFT and game.pos_y+direction_value>=0:
             game.pos_y += direction_value
+            game.display.game_map.left_player_image()
             print("Left")
         elif direction==MOVE_RIGHT and game.pos_y+direction_value<game.display.MAP_WIDTH:
             game.pos_y += direction_value
+            game.display.game_map.right_player_image()
             print("Right")
         elif direction==MOVE_DOWN and game.pos_x+direction_value<game.display.MAP_HEIGHT:
             game.pos_x += direction_value
+            game.display.game_map.front_player_image()
             print("Down")
         elif direction==MOVE_UP and game.pos_x+direction_value>=0:
             game.pos_x += direction_value
+            game.display.game_map.front_player_image()
             print("Up")
         else:
             print("invalid move")
