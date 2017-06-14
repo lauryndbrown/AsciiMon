@@ -47,6 +47,19 @@ def show_cursor():
         ctypes.windll.kernel32.SetConsoleCursorInfo(handle, ctypes.byref(ci))
     elif os.name == 'posix':
         print("\033[?25H", end="")
+#Common Images
+BLOCK_IMAGE = ["xxxx", "xxxx", "xxxx"]
+FENCE_IMAGE = ["|===|===|===|", "|===|===|===|"]
+GRASS_IMAGE = ["~^~^~^~^~^~^~^~^~","~^~^~^~^~^~^~^~^~","~^~^~^~^~^~^~^~~^"]
+HOUSE_IMAGE = [".................__.....",
+"..._____________|__|_...",
+"../                  \..",
+"./                    \..",
+"/______________________\\",
+".|        ___         |.",
+".|  [ ]  |   |  [ ]   |.",
+".|_______|__'|________|."]
+EMPTY_IMAGE = ["    :.    "," .     :. ", ":   :.   "]    
 class MonsterBattleDisplay:
     GENDER_CONVERSIONS = {Monster.FEMALE:"F", Monster.MALE:"M", Monster.GENDER_NONE:" "}
     def __init__(self):
@@ -131,11 +144,12 @@ class GameMapPosition:
         self.game_object = game_object
         self.walkable = game_object.walkable
 class GameMap:
-    EMPTY_SYMBOL = "#"
+    EMPTY_SYMBOL = "."
     def __init__(self, width, height):
         self.width = width
         self.height = height
         self.invalid_locs = {}
+        self.reset_locs = {}
         self.game_map = [list(self.EMPTY_SYMBOL*self.width) for _i in range(self.height)]
         self.objects = []
         self.player_object = None
@@ -159,10 +173,12 @@ class GameMap:
         self.insert_image(game_object)
         self.objects.append(game_object)
     def insert_image(self, game_object):
-        for img_x in range(game_object.image.height):
-            for img_y in range(game_object.image.width):
+        for img_x in range(len(game_object.image.ascii_image)):
+            for img_y in range(len(game_object.image.ascii_image[img_x])):
                 pos_y = game_object.pos_y+img_y
                 pos_x = game_object.pos_x+img_x
+                if self.game_map[pos_x][pos_y] != self.EMPTY_SYMBOL:
+                    self.add_reset_loc(pos_x, pos_y)
                 self.game_map[pos_x][pos_y] = game_object.image.ascii_image[img_x][img_y]
                 if not game_object.walkable:
                     self.add_invalid_loc(pos_x, pos_y, game_object)
@@ -171,7 +187,7 @@ class GameMap:
             for img_y in range(game_object.image.width):
                 pos_y = game_object.pos_y+img_y
                 pos_x = game_object.pos_x+img_x
-                self.game_map[pos_x][pos_y] = self.EMPTY_SYMBOL
+                self.reset_locations(pos_x, pos_y)
                 if not game_object.walkable:
                     self.remove_invalid_loc(pos_x, pos_y)
 
@@ -196,6 +212,16 @@ class GameMap:
         return True
     def check_in_bounds(self, pos_x, pos_y):
         return pos_x >=0 and pos_x < self.height and pos_y >=0 and pos_y<self.width
+    def reset_locations(self, pos_x, pos_y):
+        if (pos_x, pos_y) in self.reset_locs:
+            self.game_map[pos_x][pos_y] = self.reset_locs[(pos_x, pos_y)]
+            self.remove_reset_loc(pos_x, pos_y)
+        else:
+            self.game_map[pos_x][pos_y] = self.EMPTY_SYMBOL
+    def add_reset_loc(self, pos_x, pos_y):
+        self.reset_locs[(pos_x, pos_y)] = self.game_map[pos_x][pos_y]
+    def remove_reset_loc(self, pos_x, pos_y):
+        del self.reset_locs[(pos_x, pos_y)]
     def add_invalid_loc(self, pos_x, pos_y, game_object):
         self.invalid_locs[(pos_x, pos_y)] = GameMapPosition(pos_x, pos_y, game_object)
     def remove_invalid_loc(self, pos_x, pos_y):
@@ -228,20 +254,26 @@ class MonsterGameDisplay(Display):
         self.game_map = GameMap(self.MAP_WIDTH, self.MAP_HEIGHT)
         self.map_write_pos = self.MAP_HEIGHT+ self.IN_GAME_MENU_OFFSET + 1 
         player_images = self.create_player_images()
-        block_img = GameMapImage(["xxxx", "yyyy"])
+        block_img = GameMapImage(BLOCK_IMAGE)
+        fence_img = GameMapImage(FENCE_IMAGE)
+        grass_img = GameMapImage(GRASS_IMAGE)
+        house_img = GameMapImage(HOUSE_IMAGE)
         self.game_map.add_object(MovingMapObject(player_images, player_images[FRONT]), True)
-        self.game_map.add_object(GameMapObject(block_img, 20, 0))
+        self.game_map.add_object(GameMapObject(fence_img, 4, 0))
+        self.game_map.add_object(GameMapObject(grass_img, 20, 10, True))
+        self.game_map.add_object(GameMapObject(house_img, 10, 50))
+
         
     def create_player_images(self):
-        player_ascii_right = [u"##\u2593\u2593\u2593\u2593##",
-                        "#\u2590\u2593\u2593\u2591\u2591\u2593\u2593#",
-                        "#\u2593\u2592##\u2592\u2593#"]
-        player_ascii_left = [u"##\u2593\u2593\u2593\u2593##",
-                        "#\u2593\u2591\u2591\u2593\u2593\u2593\u2593#",
-                        "#\u2593\u2592##\u2592\u2593#"]
-        player_ascii_front = [u"##\u2593\u2593\u2593\u2593##",
-                        "\u2593\u2593\u2593\u2591\u2591\u2593\u2593\u2593#",
-                        "#\u2593\u2592##\u2592\u2593#"]
+        player_ascii_right = [u"..\u2593\u2593\u2593\u2593..",
+                        ".\u2590\u2593\u2593\u2591\u2591\u2593\u2593.",
+                        ".\u2593\u2592..\u2592\u2593."]
+        player_ascii_left = [u"..\u2593\u2593\u2593\u2593..",
+                        ".\u2593\u2591\u2591\u2593\u2593\u2593\u2593.",
+                        ".\u2593\u2592..\u2592\u2593."]
+        player_ascii_front = [u"..\u2593\u2593\u2593\u2593..",
+                        "\u2593\u2593\u2593\u2591\u2591\u2593\u2593\u2593.",
+                        ".\u2593\u2592..\u2592\u2593."]
         return {FRONT:GameMapImage(player_ascii_front),RIGHT:GameMapImage(player_ascii_right), LEFT:GameMapImage(player_ascii_left)}
     def start_menu(self, game):
         self.clear_screen()
