@@ -59,10 +59,6 @@ class MonsterGame(Game):
         game_menu.append(Choice("Battle", self.battle_screen, (self.BATTLE_NEW, ), self.BATTLE_MENU_NAME))
         game_menu.append(Choice("Options Menu", self.options_screen, (), self.OPTIONS_MENU_NAME))
         game_menu.append(Choice("Move Mode", self.move_keypress, (), None))
-        game_menu.append(Choice("Move Left", self.move, (MOVE_LEFT, ), None))
-        game_menu.append(Choice("Move Right", self.move, (MOVE_RIGHT, ), None))
-        game_menu.append(Choice("Move Up", self.move, (MOVE_UP, ), None))
-        game_menu.append(Choice("Move Down", self.move, (MOVE_DOWN, ), None))
         #Move Menu Choices
         move_menu.append(Choice("ESC", None, ( ), None))
         move_menu.append(Choice("Left", None, ( ), None))
