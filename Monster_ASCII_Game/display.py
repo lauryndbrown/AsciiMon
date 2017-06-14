@@ -5,9 +5,11 @@ from Monster_ASCII_Game.player import MonsterGamePlayer
 from Monster_ASCII_Game.monster import *
 from PIL import Image
 import os
+import sys
 import time
 from colorama import init, Fore
 IMAGES_DIR = os.path.join("Monster_ASCII_Game", "Images")
+import ctypes
 
 #Player Constants
 FRONT = "Front"
@@ -21,7 +23,30 @@ def move_cursor_up(lines):
     print("\033[%dA" % (lines))
 def move_cursor_down(lines):
     print("\033[%dB" % (lines))
+#Hide/Show cursor found at
+#https://stackoverflow.com/questions/5174810/how-to-turn-off-blinking-cursor-in-command-window
+class _CursorInfo(ctypes.Structure):
+    _fields_ = [("size", ctypes.c_int),
+                ("visible", ctypes.c_byte)]
+def hide_cursor():
+    if os.name == 'nt':
+        ci = _CursorInfo()
+        handle = ctypes.windll.kernel32.GetStdHandle(-11)
+        ctypes.windll.kernel32.GetConsoleCursorInfo(handle, ctypes.byref(ci))
+        ci.visible = False
+        ctypes.windll.kernel32.SetConsoleCursorInfo(handle, ctypes.byref(ci))
+    elif os.name == 'posix':
+        print("\033[?251", end="")
 
+def show_cursor():
+    if os.name == 'nt':    
+        ci = _CursorInfo()
+        handle = ctypes.windll.kernel32.GetStdHandle(-11)
+        ctypes.windll.kernel32.GetConsoleCursorInfo(handle, ctypes.byref(ci))
+        ci.visible = True
+        ctypes.windll.kernel32.SetConsoleCursorInfo(handle, ctypes.byref(ci))
+    elif os.name == 'posix':
+        print("\033[?25H", end="")
 class MonsterBattleDisplay:
     GENDER_CONVERSIONS = {Monster.FEMALE:"F", Monster.MALE:"M", Monster.GENDER_NONE:" "}
     def __init__(self):
@@ -116,6 +141,7 @@ class GameMap:
         self.player_object = None
     def render_map(self, game):
         print(self.map_to_str())
+
     def update_map(self, game, lines_up):
         lines_down = lines_up-self.height-1
         move_cursor_up(lines_up)
@@ -165,9 +191,11 @@ class GameMap:
             for img_y in range(game_object.image.width):
                 new_y = pos_y+img_y
                 new_x = pos_x+img_x
-                if (new_x, new_y) in self.invalid_locs and self.invalid_locs[(new_x, new_y)].game_object!=game_object:
+                if (new_x, new_y) in self.invalid_locs and self.invalid_locs[(new_x, new_y)].game_object!=game_object or not self.check_in_bounds(new_x, new_y):
                     return False
         return True
+    def check_in_bounds(self, pos_x, pos_y):
+        return pos_x >=0 and pos_x < self.height and pos_y >=0 and pos_y<self.width
     def add_invalid_loc(self, pos_x, pos_y, game_object):
         self.invalid_locs[(pos_x, pos_y)] = GameMapPosition(pos_x, pos_y, game_object)
     def remove_invalid_loc(self, pos_x, pos_y):
@@ -314,8 +342,6 @@ class MonsterGameDisplay(Display):
             print("Cannot Run")
             time.sleep(5)
             
-
-
 if __name__=="__main__":
     init()
     print(Fore.RED+"red text")

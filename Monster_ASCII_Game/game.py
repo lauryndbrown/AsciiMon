@@ -1,5 +1,5 @@
 from ascii_game.game import Game, Choice
-from Monster_ASCII_Game.display import MonsterGameDisplay
+from Monster_ASCII_Game.display import MonsterGameDisplay, hide_cursor, show_cursor
 from Monster_ASCII_Game.player import MonsterGamePlayer
 from Monster_ASCII_Game.battle import Battle, create_trainers
 from msvcrt import getch
@@ -98,6 +98,7 @@ class MonsterGame(Game):
         pass
     def move_keypress(self):
         print("Arrow Keys to Move or Esc to go Back")
+        hide_cursor()
         while True:
             key = ord(getch())
             if key == ESC:
@@ -112,6 +113,7 @@ class MonsterGame(Game):
                     self.move(MOVE_RIGHT)
                 elif key==LEFT_ARROW:
                     self.move(MOVE_LEFT)
+        show_cursor()
     def move(self, direction):
         direction_value = self.DIRECTIONS[direction]
         old_x = game.pos_x
