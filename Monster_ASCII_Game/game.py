@@ -2,6 +2,7 @@ from ascii_game.game import Game, Choice
 from Monster_ASCII_Game.display import MonsterGameDisplay
 from Monster_ASCII_Game.player import MonsterGamePlayer
 from Monster_ASCII_Game.battle import Battle, create_trainers
+from msvcrt import getch
 
 
 #Move Constants
@@ -10,10 +11,19 @@ MOVE_RIGHT = "Right"
 MOVE_UP = "Up"
 MOVE_DOWN = "Down"
 
+ESC = 27
+ENTER = 13
+SPACE = 32
+SPECIAL_KEYS = 224
+DOWN_ARROW = 80
+UP_ARROW = 72
+LEFT_ARROW = 75
+RIGHT_ARROW = 77
 class MonsterGame(Game):
     #Menu Names
     START_MENU_NAME = "Start"
     GAME_MENU_NAME = "Game"
+    MOVE_MENU_NAME = "Move Mode"
     BATTLE_MENU_NAME = "Battle"
     BATTLE_ATTACK_MENU_NAME = "Battle Attack"
     BATTLE_SWITCH_MENU_NAME = "Battle Switch"
@@ -26,7 +36,8 @@ class MonsterGame(Game):
     BATTLE_SWITCH = "Battle Switch"
     BATTLE_RUN = "Battle Run"
     BATTLE_NEW = "Battle New"
-    DIRECTIONS = {MOVE_LEFT:-10, MOVE_RIGHT:10, MOVE_UP:-3, MOVE_DOWN:3}
+    #DIRECTIONS = {MOVE_LEFT:-10, MOVE_RIGHT:10, MOVE_UP:-3, MOVE_DOWN:3}
+    DIRECTIONS = {MOVE_LEFT:-1, MOVE_RIGHT:1, MOVE_UP:-1, MOVE_DOWN:1}
 
     def __init__(self, display, player1):
         super().__init__(display, player1, None)
@@ -36,6 +47,7 @@ class MonsterGame(Game):
     def _set_up_menus(self):
         start_menu = []
         game_menu = []
+        move_menu = []
         battle_menu = []
         battle_attack_menu = []
         battle_switch_menu = []
@@ -46,10 +58,17 @@ class MonsterGame(Game):
         #Game Menu Choices
         game_menu.append(Choice("Battle", self.battle_screen, (self.BATTLE_NEW, ), self.BATTLE_MENU_NAME))
         game_menu.append(Choice("Options Menu", self.options_screen, (), self.OPTIONS_MENU_NAME))
+        game_menu.append(Choice("Move Mode", self.move_keypress, (), None))
         game_menu.append(Choice("Move Left", self.move, (MOVE_LEFT, ), None))
         game_menu.append(Choice("Move Right", self.move, (MOVE_RIGHT, ), None))
         game_menu.append(Choice("Move Up", self.move, (MOVE_UP, ), None))
         game_menu.append(Choice("Move Down", self.move, (MOVE_DOWN, ), None))
+        #Move Menu Choices
+        move_menu.append(Choice("ESC", None, ( ), None))
+        move_menu.append(Choice("Left", None, ( ), None))
+        move_menu.append(Choice("Right", None, ( ), None))
+        move_menu.append(Choice("Up", None, ( ), None))
+        move_menu.append(Choice("Down", None, ( ), None))
         #Battle Menu Choices
         battle_menu.append(Choice("Attack", self.battle_screen, (self.BATTLE_ATTACK, ), self.BATTLE_ATTACK_MENU_NAME))
         battle_menu.append(Choice("Switch", self.battle_screen, (self.BATTLE_SWITCH, ), self.BATTLE_SWITCH_MENU_NAME))
@@ -62,7 +81,7 @@ class MonsterGame(Game):
         options_menu.append(Choice("Resume Game", self.display.game_screen, (self,), self.GAME_MENU_NAME))
         options_menu.append(Choice("End Current Game", self.end_current_game, (), self.START_MENU_NAME))
         
-        self.menus = {self.START_MENU_NAME:start_menu, self.GAME_MENU_NAME:game_menu, self.OPTIONS_MENU_NAME:options_menu, self.BATTLE_MENU_NAME:battle_menu, self.BATTLE_ATTACK_MENU_NAME:battle_attack_menu, self.BATTLE_SWITCH_MENU_NAME:battle_switch_menu }
+        self.menus = {self.START_MENU_NAME:start_menu, self.GAME_MENU_NAME:game_menu, self.OPTIONS_MENU_NAME:options_menu, self.BATTLE_MENU_NAME:battle_menu, self.BATTLE_ATTACK_MENU_NAME:battle_attack_menu, self.BATTLE_SWITCH_MENU_NAME:battle_switch_menu, self.MOVE_MENU_NAME:move_menu }
         self.menu = start_menu
         self.prev_menu = None
     def start(self):
@@ -77,6 +96,22 @@ class MonsterGame(Game):
         self.display.start_menu(self)
     def create_new_game(self):
         pass
+    def move_keypress(self):
+        print("Arrow Keys to Move or Esc to go Back")
+        while True:
+            key = ord(getch())
+            if key == ESC:
+                break
+            elif key==SPECIAL_KEYS:
+                key = ord(getch())
+                if key==DOWN_ARROW:
+                    self.move(MOVE_DOWN)
+                elif key==UP_ARROW:
+                    self.move(MOVE_UP)
+                elif key==RIGHT_ARROW:
+                    self.move(MOVE_RIGHT)
+                elif key==LEFT_ARROW:
+                    self.move(MOVE_LEFT)
     def move(self, direction):
         direction_value = self.DIRECTIONS[direction]
         old_x = game.pos_x
@@ -84,23 +119,16 @@ class MonsterGame(Game):
         if direction==MOVE_LEFT and game.pos_y+direction_value>=0:
             game.pos_y += direction_value
             game.display.game_map.left_player_image()
-            print("Left")
         elif direction==MOVE_RIGHT and game.pos_y+direction_value<game.display.MAP_WIDTH:
             game.pos_y += direction_value
             game.display.game_map.right_player_image()
-            print("Right")
         elif direction==MOVE_DOWN and game.pos_x+direction_value<game.display.MAP_HEIGHT:
             game.pos_x += direction_value
             game.display.game_map.front_player_image()
-            print("Down")
         elif direction==MOVE_UP and game.pos_x+direction_value>=0:
             game.pos_x += direction_value
             game.display.game_map.front_player_image()
-            print("Up")
-        else:
-            print("invalid move")
-        print("({},{})".format(game.pos_x, game.pos_y))
-        has_moved = self.display.game_screen(self)
+        has_moved = self.display.game_screen(self, False, True)
         if not has_moved:
             game.pos_x = old_x
             game.pos_y = old_y

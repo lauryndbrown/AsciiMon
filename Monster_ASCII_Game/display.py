@@ -6,12 +6,21 @@ from Monster_ASCII_Game.monster import *
 from PIL import Image
 import os
 import time
+from colorama import init, Fore
 IMAGES_DIR = os.path.join("Monster_ASCII_Game", "Images")
 
 #Player Constants
 FRONT = "Front"
 LEFT = "Left"
 RIGHT = "Right"
+
+#cursor methods
+def move_cursor (y, x):
+    print("\033[%d;%dH" % (y, x))
+def move_cursor_up(lines):
+    print("\033[%dA" % (lines))
+def move_cursor_down(lines):
+    print("\033[%dB" % (lines))
 
 class MonsterBattleDisplay:
     GENDER_CONVERSIONS = {Monster.FEMALE:"F", Monster.MALE:"M", Monster.GENDER_NONE:" "}
@@ -79,28 +88,40 @@ class GameMapImage:
         self.height = len(ascii_image)
         self.width = len(ascii_image[0])
 class GameMapObject:
-    def __init__(self, image, pos_x=0, pos_y=0):
+    def __init__(self, image, pos_x=0, pos_y=0, walkable=False):
         self.pos_x = pos_x
         self.pos_y = pos_y
         self.image = image
         self.width = image.width
         self.height = image.height
+        self.walkable = walkable
 class MovingMapObject(GameMapObject):
     def __init__(self, images, start_image, pos_x=0, pos_y=0):
         super().__init__(start_image, pos_x, pos_y)
         self.images = images
-
+class GameMapPosition:
+    def __init__(self, pos_x, pos_y, game_object):
+        self.pos_x = pos_x
+        self.pos_y = pos_y
+        self.game_object = game_object
+        self.walkable = game_object.walkable
 class GameMap:
     EMPTY_SYMBOL = "#"
     def __init__(self, width, height):
         self.width = width
         self.height = height
-        self.invalid_locs = []
+        self.invalid_locs = {}
         self.game_map = [list(self.EMPTY_SYMBOL*self.width) for _i in range(self.height)]
         self.objects = []
         self.player_object = None
     def render_map(self, game):
         print(self.map_to_str())
+    def update_map(self, game, lines_up):
+        lines_down = lines_up-self.height-1
+        move_cursor_up(lines_up)
+        print(self.map_to_str(), end="")
+        move_cursor_down(lines_down)
+
     def map_to_str(self):
         game_map = []
         for i in range(len(self.game_map)):
@@ -117,30 +138,40 @@ class GameMap:
                 pos_y = game_object.pos_y+img_y
                 pos_x = game_object.pos_x+img_x
                 self.game_map[pos_x][pos_y] = game_object.image.ascii_image[img_x][img_y]
-                self.add_invalid_loc(pos_x, pos_y)
+                if not game_object.walkable:
+                    self.add_invalid_loc(pos_x, pos_y, game_object)
     def remove_image(self, game_object):
         for img_x in range(game_object.image.height):
             for img_y in range(game_object.image.width):
                 pos_y = game_object.pos_y+img_y
                 pos_x = game_object.pos_x+img_x
                 self.game_map[pos_x][pos_y] = self.EMPTY_SYMBOL
-                self.remove_invalid_loc(pos_x, pos_y)
+                if not game_object.walkable:
+                    self.remove_invalid_loc(pos_x, pos_y)
 
     def remove_object(self, game_object):
         self.remove_image(game_object)
         self.objects.remove(game_object)
     def move_object(self, game_object, pos_x, pos_y):
-        if (pos_x, pos_y) not in self.invalid_locs:
+        if self.check_locations(game_object, pos_x, pos_y):
             self.remove_object(game_object)
             game_object.pos_x = pos_x
             game_object.pos_y = pos_y
             self.add_object(game_object)
             return True
         return False
-    def add_invalid_loc(self, pos_x, pos_y):
-        self.invalid_locs.append((pos_x, pos_y))
+    def check_locations(self, game_object, pos_x, pos_y):
+        for img_x in range(game_object.image.height):
+            for img_y in range(game_object.image.width):
+                new_y = pos_y+img_y
+                new_x = pos_x+img_x
+                if (new_x, new_y) in self.invalid_locs and self.invalid_locs[(new_x, new_y)].game_object!=game_object:
+                    return False
+        return True
+    def add_invalid_loc(self, pos_x, pos_y, game_object):
+        self.invalid_locs[(pos_x, pos_y)] = GameMapPosition(pos_x, pos_y, game_object)
     def remove_invalid_loc(self, pos_x, pos_y):
-        self.invalid_locs.remove((pos_x, pos_y))
+        del self.invalid_locs[(pos_x, pos_y)]
     def left_player_image(self):
         self.player_object.image = self.player_object.images[LEFT]
     def right_player_image(self):
@@ -164,12 +195,15 @@ class MonsterGameDisplay(Display):
     MAP_HEIGHT = 30
     def __init__(self):
         super().__init__(50)
+        init()#colorama init for windows
         self.battle_display = MonsterBattleDisplay()
         self.game_map = GameMap(self.MAP_WIDTH, self.MAP_HEIGHT)
+        self.map_write_pos = self.MAP_HEIGHT+ self.IN_GAME_MENU_OFFSET + 1 
         player_images = self.create_player_images()
         block_img = GameMapImage(["xxxx", "yyyy"])
         self.game_map.add_object(MovingMapObject(player_images, player_images[FRONT]), True)
-        #self.game_map.add_object(GameMapObject(block_img, 1, 0))
+        self.game_map.add_object(GameMapObject(block_img, 20, 0))
+        
     def create_player_images(self):
         player_ascii_right = [u"##\u2593\u2593\u2593\u2593##",
                         "#\u2590\u2593\u2593\u2591\u2591\u2593\u2593#",
@@ -187,14 +221,21 @@ class MonsterGameDisplay(Display):
         self.fill_screen(self.GAME_SCREEN_OFFSET)
         self._in_game_menu(game.menu)
         self.last_menu = (self.game_screen, (game, ))
-    def game_screen(self, game, game_over=False):
+    def game_screen(self, game, game_over=False, move=False):
+        if move:
+            has_moved = self.game_map.move_object(self.game_map.player_object, game.pos_x, game.pos_y)
+
+            self.game_map.update_map(game, self.map_write_pos)
+            return has_moved
         self.clear_screen()
         print(self.center("Game Screen"," "))
         #self.fill_screen(self.GAME_SCREEN_OFFSET)
-        has_moved = self.game_map.move_object(self.game_map.player_object, game.pos_x, game.pos_y)
         self.game_map.render_map(game)
         self._in_game_menu(game.menu)
         self.last_menu = (self.game_screen, (game, ))
+    def update_game_screen(self, game):
+        has_moved = self.game_map.move_object(self.game_map.player_object, game.pos_x, game.pos_y)
+        self.game_map.update_map(game)
         return has_moved
     def options_screen(self, game):
         self.clear_screen()
@@ -276,7 +317,10 @@ class MonsterGameDisplay(Display):
 
 
 if __name__=="__main__":
-    battle = MonsterBattleDisplay()
-    monster1 = Monster("Monster", "N", 7, "Ami")
-    monster2 = Monster("Monster", "F")
-
+    init()
+    print(Fore.RED+"red text")
+    print("a\nb\nc\n", end="e")
+    move_cursor_up(3)
+    print("h")
+    move_cursor_down(3)
+    print("z")
