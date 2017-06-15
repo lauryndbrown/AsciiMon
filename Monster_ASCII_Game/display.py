@@ -17,17 +17,37 @@ LEFT = "Left"
 RIGHT = "Right"
 
 #cursor methods
-def move_cursor (y, x):
+def move_cursor (x, y):
     print("\033[%d;%dH" % (y, x))
 def move_cursor_up(lines):
     print("\033[%dA" % (lines))
 def move_cursor_down(lines):
     print("\033[%dB" % (lines))
+def move_cursor_forward(cols):
+    print("\033[%dC" % (cols))
+def move_cursor_backward(cols):
+    print("\033[%dD" % (cols))
 #Hide/Show cursor found at
 #https://stackoverflow.com/questions/5174810/how-to-turn-off-blinking-cursor-in-command-window
 class _CursorInfo(ctypes.Structure):
     _fields_ = [("size", ctypes.c_int),
                 ("visible", ctypes.c_byte)]
+class _Coord(ctypes.Structure):
+    _fields_ = [("X", ctypes.c_short),
+                ("Y", ctypes.c_short)]
+def move_cursor2 (x, y):
+    if os.name == 'nt':
+        handle = ctypes.windll.kernel32.GetStdHandle(-11)
+        coord = _Coord()
+        ctypes.windll.kernel32.SetConsoleCursorPosition(handle, ctypes.byref(coord))
+        old_x = coord.X
+        old_y = coord.Y
+        coord.X = x
+        coord.Y = y
+        ctypes.windll.kernel32.SetConsoleCursorPosition(handle, ctypes.byref(coord))
+        return old_x, old_y
+    elif os.name == 'posix':
+        print("\033[%d;%dH" % (y, x))
 def hide_cursor():
     if os.name == 'nt':
         ci = _CursorInfo()
@@ -66,6 +86,8 @@ class MonsterBattleDisplay:
         self.image_converter = ASCII_Art(list('#@%S?+:*,. '))
     def monster_info(self, monster):
             return "{:>23} \n HP:{:<14}]{:>3}% \n :L{} {:>18} ".format(monster.name,"="*(int(monster.health/monster.max_health*14)),int(monster.health/monster.max_health*100), monster.level, self.GENDER_CONVERSIONS[monster.gender])
+    def monster_info_hp(self, monster):
+        return "{:<14}".format("="*int(monster.health/monster.max_health*14))
     def monster_pic(self, monster, mon_info):
         self.image_converter.chars = list(u'#\u2593\u2592\u2591 ') 
         fire_mon =  Image.open(os.path.join(IMAGES_DIR,"f8.png"))
@@ -315,6 +337,8 @@ class MonsterGameDisplay(Display):
             self.display_battle_images(game)
             if message:
                 print(self.center(message," "))
+                time.sleep(1)
+                self.display_opponent_attack(game)
             else:
                 print()
             self._in_game_menu(game.menu)
@@ -341,6 +365,40 @@ class MonsterGameDisplay(Display):
             message = self.attack_message(game, move) 
         game.menu = self.label_attacks(game, game.battle.active_trainer)
         return message
+    def display_opponent_attack(self, game):
+        message = self.opponent_message(game)
+        self.elipsis(3)
+        print(self.center(message, " "), end="" )
+        lines_up = 30
+        lines_down = 2
+        move_cursor_up(lines_up)
+        self.display_battle_images(game)
+        #self.update_health_bar(game)
+        move_cursor_down(lines_down)
+    def update_health_bar(self, game):
+        x = 30#14
+        y = 20#31
+        old_x, old_y = move_cursor2(x, y)
+        monster = game.battle.trainers[0].active_monster
+        hp = self.battle_display.monster_info_hp(monster)
+        print(hp, end="")
+        move_cursor2(x,y)
+    def elipsis(self, n):
+        dots = []
+        for i in range(n):
+            dots.append(". ")
+            print(self.center("".join(dots), " "), end="" )
+            time.sleep(.5)
+            move_cursor_up(2)
+    def opponent_message(self, game):
+        trainers = game.battle.trainers
+        trainer1, trainer2 = trainers[0], trainers[1]
+        monster1 = trainer1.active_monster
+        monster2 = trainer2.active_monster
+    
+        move = trainer2.pick_move()
+        attack_result = monster2.attack_monster(monster1, move)
+        return self.create_message(monster2, monster1, move, attack_result)
     def attack_message(self, game, move):
         trainers = game.battle.trainers
         trainer1, trainer2 = trainers[0], trainers[1]
@@ -348,8 +406,10 @@ class MonsterGameDisplay(Display):
         monster2 = trainer2.active_monster
         
         attack_result = monster1.attack_monster(monster2, move)
-        
-        message = "{} uses {}! ".format(monster1.name, move.name)
+        return self.create_message(monster1, monster2, move, attack_result)
+       
+    def create_message(self, monster, oppenent, move, attack_result):
+        message = "{} uses {}! ".format(monster.name, move.name)
         if move.effect_type==Move.HEALTH and attack_result<0:
             message = message + "It does {} damage!".format(abs(move.max_value))
         return message
