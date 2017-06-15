@@ -300,7 +300,15 @@ class MonsterGameDisplay(Display):
     def start_menu(self, game):
         self.clear_screen()
         print(self.center("Start Screen"," "))
-        self.fill_screen(self.GAME_SCREEN_OFFSET)
+        title =  Image.open(os.path.join(IMAGES_DIR,"title2.png"))
+        self.image_converter.row_incr = 3
+        self.image_converter.col_incr = 3
+        
+        #self.image_converter.invert_chars()
+        title_ascii = self.image_converter.image_to_ascii(title)
+
+        print(title_ascii)
+        #self.fill_screen(self.GAME_SCREEN_OFFSET)
         self._in_game_menu(game.menu)
         self.last_menu = (self.game_screen, (game, ))
     def game_screen(self, game, game_over=False, move=False):
@@ -373,7 +381,6 @@ class MonsterGameDisplay(Display):
         lines_down = 2
         move_cursor_up(lines_up)
         self.display_battle_images(game)
-        #self.update_health_bar(game)
         move_cursor_down(lines_down)
     def update_health_bar(self, game):
         x = 30#14
