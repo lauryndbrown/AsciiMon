@@ -36,7 +36,6 @@ class MonsterGame(Game):
     BATTLE_SWITCH = "Battle Switch"
     BATTLE_RUN = "Battle Run"
     BATTLE_NEW = "Battle New"
-    #DIRECTIONS = {MOVE_LEFT:-10, MOVE_RIGHT:10, MOVE_UP:-3, MOVE_DOWN:3}
     DIRECTIONS = {MOVE_LEFT:-1, MOVE_RIGHT:1, MOVE_UP:-1, MOVE_DOWN:1}
 
     def __init__(self, display, player1):
@@ -67,18 +66,14 @@ class MonsterGame(Game):
         move_menu.append(Choice("Down", None, ( ), None))
         #Battle Menu Choices
         battle_menu.append(Choice("Attack", self.battle_screen, (self.BATTLE_ATTACK, ), self.BATTLE_ATTACK_MENU_NAME))
-        #battle_menu.append(Choice("Switch", self.battle_screen, (self.BATTLE_SWITCH, ), self.BATTLE_SWITCH_MENU_NAME))
-        battle_menu.append(Choice("Options Menu", self.options_screen, (), self.OPTIONS_MENU_NAME))
-#        battle_menu.append(Choice("Run", self.battle_screen, (self.BATTLE_RUN, ), None))
+        battle_menu.append(Choice(self.BACK_OPTION, self.display.game_screen, (self,), self.GAME_MENU_NAME))
         #Battle Menu Choices
         battle_attack_menu.append(Choice(self.BACK_OPTION, self.battle_screen, None, self.BATTLE_MENU_NAME))
-        #Battle Switch Choices
-        battle_switch_menu.append(Choice(self.BACK_OPTION, self.battle_screen, None, self.BATTLE_MENU_NAME))
         #Option Menu Choices
         options_menu.append(Choice("Resume Game", self.display.game_screen, (self,), self.GAME_MENU_NAME))
         options_menu.append(Choice("End Current Game", self.end_current_game, (), self.START_MENU_NAME))
         
-        self.menus = {self.START_MENU_NAME:start_menu, self.GAME_MENU_NAME:game_menu, self.OPTIONS_MENU_NAME:options_menu, self.BATTLE_MENU_NAME:battle_menu, self.BATTLE_ATTACK_MENU_NAME:battle_attack_menu, self.BATTLE_SWITCH_MENU_NAME:battle_switch_menu, self.MOVE_MENU_NAME:move_menu }
+        self.menus = {self.START_MENU_NAME:start_menu, self.GAME_MENU_NAME:game_menu, self.OPTIONS_MENU_NAME:options_menu, self.BATTLE_MENU_NAME:battle_menu, self.BATTLE_ATTACK_MENU_NAME:battle_attack_menu, self.MOVE_MENU_NAME:move_menu }
         self.menu = start_menu
         self.prev_menu = None
     def start(self):
@@ -135,7 +130,7 @@ class MonsterGame(Game):
         if not flag:
             self.display.battle_screen(self, None)
         elif flag==self.BATTLE_NEW:
-            player_trainer, ai_trainer, wild_trainer = create_trainers(game)
+            player_trainer, ai_trainer, wild_trainer = create_trainers(self)
             self.new_battle(player_trainer, ai_trainer)
         elif flag==self.BATTLE_ATTACK:
             self.display.battle_screen(self, self.display.BATTLE_COMMANDS, choice)
