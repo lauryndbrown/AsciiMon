@@ -1,7 +1,10 @@
-# Monster_ASCII_Game
+# AsciiMon
 A Monster battle ASCII Art Terminal Game Built during a 2-day Game Jam. Leveraged my project [ASCII GAME]() for game infrastructure.
 ## Installation & Running
-TODO: Add project on pip
+```shell
+> pip install asciimon
+> asciimon
+```
 ## Features
  - ASCII Art Style
  - Keyboard controlled Menu Screens
@@ -9,11 +12,11 @@ TODO: Add project on pip
  - Player vs Computer Battle Screen with turn-based battle
  ## Screenshots
  ### START MENU
- TODO: add image of start menu
+ ![Start Menu Image](https://github.com/lauryndbrown/AsciiMon/blob/master/Monster_ASCII_Game/Screenshots/title%20sample.png)
  ### GAME MAP OVERWORLD VIEW
- TODO: add gif of overworld view
+ ![Game Map Image](https://github.com/lauryndbrown/AsciiMon/blob/master/Monster_ASCII_Game/Screenshots/walkdemo.gif)
  ### BATTLE SCREEN
- TODO: add gif of battle screen
+ ![Battle Screen](https://github.com/lauryndbrown/AsciiMon/blob/master/Monster_ASCII_Game/Screenshots/battle%20with%20damage.png)
  ## CREDITS
-  - [ASCII Game]()
+  - [ASCII Game](https://github.com/lauryndbrown/AsciiGame)
   - Sample battle art used Pokemon characters. Will be replaced with original art at a later date.
