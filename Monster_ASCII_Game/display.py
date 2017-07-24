@@ -8,7 +8,7 @@ import os
 import sys
 import time
 from colorama import init, Fore
-IMAGES_DIR = os.path.join("Monster_ASCII_Game", "Images")
+IMAGES_DIR =  os.path.join(os.path.dirname(__file__), "Images")
 import ctypes
 
 #Player Constants
@@ -175,6 +175,7 @@ class GameMap:
         self.game_map = [list(self.EMPTY_SYMBOL*self.width) for _i in range(self.height)]
         self.objects = []
         self.player_object = None
+
     def render_map(self, game):
         print(self.map_to_str())
 
@@ -189,14 +190,16 @@ class GameMap:
         for i in range(len(self.game_map)):
             game_map.append("".join(self.game_map[i]))
         return "\n".join(game_map)
+
     def add_object(self, game_object, player=False):
         if player:
             self.player_object = game_object
         self.insert_image(game_object)
         self.objects.append(game_object)
+
     def insert_image(self, game_object):
-        for img_x in range(len(game_object.image.ascii_image)):
-            for img_y in range(len(game_object.image.ascii_image[img_x])):
+        for img_x in range(game_object.image.height):
+            for img_y in range(game_object.image.width):
                 pos_y = game_object.pos_y+img_y
                 pos_x = game_object.pos_x+img_x
                 if self.game_map[pos_x][pos_y] != self.EMPTY_SYMBOL:
@@ -204,6 +207,7 @@ class GameMap:
                 self.game_map[pos_x][pos_y] = game_object.image.ascii_image[img_x][img_y]
                 if not game_object.walkable:
                     self.add_invalid_loc(pos_x, pos_y, game_object)
+
     def remove_image(self, game_object):
         for img_x in range(game_object.image.height):
             for img_y in range(game_object.image.width):

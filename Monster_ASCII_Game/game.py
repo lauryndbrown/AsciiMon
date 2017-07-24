@@ -113,24 +113,24 @@ class MonsterGame(Game):
         show_cursor()
     def move(self, direction):
         direction_value = self.DIRECTIONS[direction]
-        old_x = game.pos_x
-        old_y = game.pos_y
-        if direction==MOVE_LEFT and game.pos_y+direction_value>=0:
-            game.pos_y += direction_value
-            game.display.game_map.left_player_image()
-        elif direction==MOVE_RIGHT and game.pos_y+direction_value<game.display.MAP_WIDTH:
-            game.pos_y += direction_value
-            game.display.game_map.right_player_image()
-        elif direction==MOVE_DOWN and game.pos_x+direction_value<game.display.MAP_HEIGHT:
-            game.pos_x += direction_value
-            game.display.game_map.front_player_image()
-        elif direction==MOVE_UP and game.pos_x+direction_value>=0:
-            game.pos_x += direction_value
-            game.display.game_map.front_player_image()
+        old_x = self.pos_x
+        old_y = self.pos_y
+        if direction==MOVE_LEFT and self.pos_y+direction_value>=0:
+            self.pos_y += direction_value
+            self.display.game_map.left_player_image()
+        elif direction==MOVE_RIGHT and self.pos_y+direction_value<self.display.MAP_WIDTH:
+            self.pos_y += direction_value
+            self.display.game_map.right_player_image()
+        elif direction==MOVE_DOWN and self.pos_x+direction_value<self.display.MAP_HEIGHT:
+            self.pos_x += direction_value
+            self.display.game_map.front_player_image()
+        elif direction==MOVE_UP and self.pos_x+direction_value>=0:
+            self.pos_x += direction_value
+            self.display.game_map.front_player_image()
         has_moved = self.display.game_screen(self, False, True)
         if not has_moved:
-            game.pos_x = old_x
-            game.pos_y = old_y
+            self.pos_x = old_x
+            self.pos_y = old_y
     def battle_screen(self, flag=None, choice=None):
         if not flag:
             self.display.battle_screen(self, None)
@@ -157,8 +157,11 @@ class MonsterGame(Game):
        return Choice(move.name, self.battle_screen, (self.BATTLE_ATTACK, move ), self.BATTLE_ATTACK_MENU_NAME)
     def create_switch_menu_choice(self, monster):
        return Choice(monster.name, self.battle_screen, (self.BATTLE_SWITCH, monster ), self.BATTLE_SWITCH_MENU_NAME)
-if __name__=="__main__":
+def start():
     display = MonsterGameDisplay()
     player = MonsterGamePlayer("Ash")
     game = MonsterGame(display, player)
     game.start()
+
+if __name__=="__main__":
+    start()
