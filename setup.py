@@ -1,6 +1,6 @@
 from setuptools import setup, find_packages
 
-setup(name='monster-ascii-game',
+setup(name='asciimon',
       version='0.1.0',
       description='ASCII Art Monster battle game',
       url='https://github.com/lauryndbrown/Monster_ASCII_Game',
@@ -15,7 +15,7 @@ setup(name='monster-ascii-game',
       ],
       entry_points={
         'console_scripts':[
-            'monster-ascii = Monster_ASCII_Game.game:start'
+            'asciimon = Monster_ASCII_Game.game:start'
         ]
       }, 
       include_package_data=True,
